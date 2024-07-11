@@ -1,0 +1,27 @@
+version: "3.7"
+
+services:
+
+  # ----------------------------------------------------------------------------------------------------------- main_db
+  imdb_db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_DB=GoodReads
+      - POSTGRES_PASSWORD=fgdg09843hdg34yhgt43yfdg745
+    volumes:
+      - goodreads_db_data:/var/lib/postgresql/data
+    ports:
+      - '7678:5432'
+    networks:
+      - goodreads_network
+
+
+
+networks:
+  goodreads_network:
+    driver: bridge
+
+volumes:
+  goodreads_db_data:
+
