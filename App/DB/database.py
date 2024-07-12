@@ -1,8 +1,12 @@
 from sqlmodel import SQLModel, create_engine
-from . import models
+import models
 
 
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
 
-engine = create_engine(sqlite_url)
+DATABASE_URL = "sqlite:///./test.db"
+engine = create_engine(DATABASE_URL, echo=True)
+
+def create_db_and_tables():
+    SQLModel.metadata.create_all(engine)
+
+create_db_and_tables()
