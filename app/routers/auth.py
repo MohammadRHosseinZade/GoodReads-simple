@@ -10,7 +10,7 @@ from app.db import models, database
 
 router = APIRouter(prefix='/auth', tags=['auth'])
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 class UserCreate(BaseModel):
     name: str
@@ -18,41 +18,9 @@ class UserCreate(BaseModel):
     password: str
     
 
-    
-@router.post("/register_or_login", response_model=jwt_handler.Token)
-async def register_or_login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
-    statement = select(models.User).where(models.User.email == form_data.username)
-    result = db.exec(statement)
-    user = result.first()
-
-    if user:
-        # User exists, verify password
-        if not security.verify_password(form_data.password, user.hashed_password):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect email or password",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-    else:
-        # User does not exist, create a new user
-        hashed_password = security.get_password_hash(form_data.password)
-        new_user = models.User(
-            name=form_data.username.split("@")[0],  # Assuming name is part of the email before '@'
-            email=form_data.username,
-            hashed_password=hashed_password,
-            is_admin=False
-        )
-        db.add(new_user)
-        db.commit()
-        db.refresh(new_user)
-        user = new_user
-
-    # Generate access token
-    access_token = jwt_handler.create_access_token(data={"sub": user.email})
-    return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/token", response_model=jwt_handler.Token)
-async def login_for_access_token(form_data: OAuth2PasswordBearer = Depends(), db: Session = Depends(database.get_db)):
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
