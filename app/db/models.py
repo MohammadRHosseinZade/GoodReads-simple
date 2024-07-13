@@ -23,7 +23,7 @@ class Book(SQLModel, table=True):
     publish_date: datetime.datetime = Field()
 
     reviews: list["Review"] = Relationship(back_populates="book")
-    book_marks:list["Bookmark"] = Relationship(back_populates="book")
+    book_marks: list["Bookmark"] = Relationship(back_populates="book")
 
 
 class Review(SQLModel, table=True):

@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from sqlmodel import select
 from typing import Optional
 from pydantic import BaseModel
-from core import jwt_handler, security
-from db import models, database
+from app.core import jwt_handler, security
+from app.db import models, database
 
 
 router = APIRouter(prefix='/auth', tags=['auth'])

@@ -1,5 +1,10 @@
 from fastapi import FastAPI
-from routers import auth
+from app.routers import auth, book
+from app.db.database import create_db_and_tables
+
+create_db_and_tables()
 app = FastAPI()
 
-app.include_router(auth.router, prefix="/auth")
+
+# app.include_router(auth.router, prefix="/auth")
+app.include_router(book.router)
