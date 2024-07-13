@@ -1,0 +1,21 @@
+id,score,comment,owner_id,book_id
+1,4,"Good book",1,1
+2,3,"Interesting read",2,2
+3,5,"Excellent!",3,3
+4,4,"Informative",4,4
+5,2,"Could be better",5,5
+6,5,"Loved it",6,6
+7,3,"Average",7,7
+8,4,"Well-written",8,8
+9,1,"Disappointing",9,9
+10,5,"Highly recommended",10,10
+11,4,"Engaging plot",11,11
+12,3,"Slow start but picks up",12,12
+13,2,"Not my type",13,13
+14,4,"Well-researched",14,14
+15,5,"Couldn't put it down",15,15
+16,3,"Expected more",16,16
+17,4,"Good characters",17,17
+18,5,"A must-read",18,18
+19,2,"Didn't like the ending",19,19
+20,4,"Captivating",20,20
