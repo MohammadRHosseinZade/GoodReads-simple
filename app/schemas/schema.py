@@ -46,3 +46,9 @@ class BookCreate(BaseModel):
 
 class BookUpdate(BookCreate):
     pass    
+
+class UserCreate(BaseModel):
+    name: str
+    email: str
+    password: str
+    
