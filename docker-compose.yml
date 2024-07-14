@@ -1,9 +1,36 @@
 version: "3.7"
 
 services:
+  fastapi-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8010:8010"
+    environment:
+      - SECRET_KEY=yNVyGX3MHyYkrbRszBuYFmpL89NI6hmc
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=60
+      - DEFAULT_ADMIN_USER=admin@example.com
+      - DEFAULT_ADMIN_PASSWORD=123321456
+      - DB_USER=root
+      - DB_PASSWORD=fgdg09843hdg34yhgt43yfdg745
+      - DB_HOST=goodreads_db
+      - DB_PORT=5432
+      - DB_DBNAME=GoodReads
+    volumes:
+      - .:/master
+    networks:
+      - goodreads_network
+    command: >
+      sh -c "
+             while ! nc -z goodreads_db 5432 ; do echo 'waiting for goodreads_db...' & sleep 3 ; done &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8010 &&
+             sleep 10 &&
+             python db_fake_data_initiator.py"
 
   # ----------------------------------------------------------------------------------------------------------- main_db
-  imdb_db:
+  goodreads_db:
     image: postgres:13
     environment:
       - POSTGRES_USER=root

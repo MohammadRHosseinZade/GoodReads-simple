@@ -1,11 +1,11 @@
 import jwt
 from datetime import datetime, timedelta
 from typing import Optional
-from pydantic import BaseModel
+from os import environ
 
-SECRET_KEY = "yNVyGX3MHyYkrbRszBuYFmpL89NI6hmc"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+SECRET_KEY = environ.get("SECRET_KEY",default="mystrongsecret")
+ALGORITHM = environ.get("ALGORITHM",default="HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = environ.get("ACCESS_TOKEN_EXPIRE_MINUTES",30)
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
