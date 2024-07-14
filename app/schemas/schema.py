@@ -38,3 +38,8 @@ class UserReview(BaseModel):
 
     class Config:
         orm_mode = True        
+
+class BookCreate(BaseModel):
+    title: str
+    description: str
+    publish_date: datetime

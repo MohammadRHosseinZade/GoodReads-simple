@@ -1,12 +1,21 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlmodel import select, func, case
-from app.schemas.schema import BookDetails, BooksRetrieve, UserReview
+from app.schemas.schema import BookDetails, BooksRetrieve, UserReview, BookCreate
 from app.db import models, database
-
+from app.routers.auth import get_current_user
 
 router = APIRouter(prefix='/book', tags=['book'])
 
+@router.post("/create/", response_model=models.Book)
+async def create_book(book: BookCreate, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+    if current_user.is_admin != True:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    db_book = models.Book(**book.model_dump())
+    db.add(db_book)
+    db.commit()
+    db.refresh(db_book)
+    return db_book
 
 @router.get("/all_books", response_model=list[BooksRetrieve])
 async def get_all_books(skip: int = 0, limit: int = 10, db: Session = Depends(database.get_db)):
