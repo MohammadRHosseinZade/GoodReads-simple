@@ -52,3 +52,5 @@ class UserCreate(BaseModel):
     email: str
     password: str
     
+class BookmarkCreate(BaseModel):
+    book_id: int
