@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from sqlmodel import select
-from typing import Optional
+from app.schemas.schema import Token
 from pydantic import BaseModel
 from app.core import jwt_handler, security
 from app.db import models, database
@@ -19,7 +19,7 @@ class UserCreate(BaseModel):
     
 
 
-@router.post("/token", response_model=jwt_handler.Token)
+@router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:

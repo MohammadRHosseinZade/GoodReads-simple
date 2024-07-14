@@ -27,6 +27,3 @@ def decode_access_token(token: str):
         return None
 
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str    

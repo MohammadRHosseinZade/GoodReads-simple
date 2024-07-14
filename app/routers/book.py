@@ -1,45 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlmodel import select, func, case
-from typing import Optional
-from datetime import datetime
-from pydantic import BaseModel
+from app.schemas.schema import BookDetails, BooksRetrieve, UserReview
 from app.db import models, database
 
 
 router = APIRouter(prefix='/book', tags=['book'])
 
-class BooksRetrieve(BaseModel):
-    id: int
-    title: str
-    description: str
-    publish_date: datetime
-    book_marked_count: int
-    
-
-
-    class Config:
-        orm_mode = True
-
-class BookDetails(BooksRetrieve):
-    review_comments_count: int
-    review_score_count: int
-    average_review_score: float
-    score_one_count: int
-    score_two_count: int
-    score_three_count: int
-    score_four_count: int
-    score_five_count: int
-    user_reviews: list["UserReview"] 
-
-class UserReview(BaseModel):
-    user_id: int
-    user_name: str
-    review_comment: str
-    review_score: int
-
-    class Config:
-        orm_mode = True    
 
 @router.get("/all_books", response_model=list[BooksRetrieve])
 async def get_all_books(skip: int = 0, limit: int = 10, db: Session = Depends(database.get_db)):
@@ -49,9 +16,11 @@ async def get_all_books(skip: int = 0, limit: int = 10, db: Session = Depends(da
         models.Book.description,
         models.Book.publish_date,
         func.count(models.Bookmark.id).label("book_marked_count"),
-    ).join(models.Bookmark, isouter=True).group_by(models.Book.id).offset(skip).limit(limit)
+    ).outerjoin(models.Bookmark).group_by(models.Book.id).offset(skip).limit(limit)
+    
     result = db.execute(statement)
     books = result.all()
+    
     return books
 
 @router.get("/detail/{book_id}", response_model=BookDetails)
@@ -74,7 +43,13 @@ async def get_book(book_id: int, db: Session = Depends(database.get_db)):
         models.User.name.label("user_name"),
         models.Review.comment.label("review_comment"),
         models.Review.score.label("review_score")
-    ).select_from(models.Book).where(models.Book.id == book_id).outerjoin(models.Bookmark, models.Bookmark.book_id == models.Book.id).outerjoin(models.Review, models.Review.book_id == models.Book.id).outerjoin(models.User, models.User.id == models.Review.owner_id).group_by(
+    ).select_from(models.Book).where(models.Book.id == book_id).outerjoin(
+        models.Bookmark, models.Bookmark.book_id == models.Book.id
+    ).outerjoin(
+        models.Review, models.Review.book_id == models.Book.id
+    ).outerjoin(
+        models.User, models.User.id == models.Review.owner_id
+    ).group_by(
         models.Book.id,
         models.User.id,
         models.Review.comment,
@@ -87,24 +62,6 @@ async def get_book(book_id: int, db: Session = Depends(database.get_db)):
     if not book_data:
         raise HTTPException(status_code=404, detail="Book not found")
 
-    # Aggregate the data into the response model
-    book_details = book_data[0]
-    user_reviews = [
-        UserReview(
-            user_id=row.user_id,
-            user_name=row.user_name,
-            review_comment=row.review_comment,
-            review_score=row.review_score
-        ) for row in book_data if row.user_id is not None
-    ]
-    
-    result = db.execute(statement)
-    book_data = result.fetchall()
-
-    if not book_data:
-        raise HTTPException(status_code=404, detail="Book not found")
-
-    # Aggregate the data into the response model
     book_details = book_data[0]
     user_reviews = [
         UserReview(
