@@ -1,6 +1,5 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, conint
 from datetime import datetime
-
 
 
 class Token(BaseModel):
@@ -54,3 +53,8 @@ class UserCreate(BaseModel):
     
 class BookmarkCreate(BaseModel):
     book_id: int
+
+class ReviewCreate(BaseModel):
+    book_id: int
+    score: conint(ge=1, le=5)
+    comment: str
