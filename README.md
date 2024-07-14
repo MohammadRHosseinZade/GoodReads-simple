@@ -1,10 +1,30 @@
 # GoodReads-simple
-##clone the repository 
-1- run "docker compose up --build -d"
-2- after projcet build run "docker-compose exec fastapi-app python db_fake_data_initiator.py"
-3- you can login via defualt admin user and pass placed in docker compose enviroment of the service
-4- go to "localhost:8010/docs", then click the green auth button on upper left
-5- fill the user and pass feild 
-6- now you have the admin access
+## FastAPI simple Project 
 
-I know this is not a good readme, I will edit it ASAP! my deadline for this task has arrived and that the reason:))
+## 
+## Installation
+
+
+
+Install the dependencies and devDependencies and start the server.
+1- Clone  the repository:
+```sh
+cd GoodReads-simple
+docker-compose up --build -d
+docker-compose exec fastapi-app python db_fake_data_initiator.py
+```
+
+Access the FastAPI application:
+
+Navigate to http://localhost:8010/docs in your browser.
+Click on the "Authorize" button (green button on the upper right).
+Use the default admin credentials provided in the Docker Compose environment variables.
+Login using the default admin user and password.
+Default Admin Credentials
+Username: admin@example.com
+Password: 123321456
+Project Structure
+app/: Contains the FastAPI application code.
+db_fake_data_initiator.py: Script to initialize fake data into the PostgreSQL database.
+docker-compose.yml: Docker Compose configuration file.
+Dockerfile: Dockerfile for building the FastAPI application container.
