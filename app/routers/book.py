@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlmodel import select, func, case
-from app.schemas.schema import BookDetails, BooksRetrieve, UserReview, BookCreate
+from sqlalchemy.exc import NoResultFound
+from app.schemas.schema import BookDetails, BooksRetrieve, UserReview, BookCreate, BookUpdate
 from app.db import models, database
 from app.routers.auth import get_current_user
 
@@ -16,6 +17,39 @@ async def create_book(book: BookCreate, db: Session = Depends(database.get_db), 
     db.commit()
     db.refresh(db_book)
     return db_book
+
+@router.put("/update/{book_id}", response_model=BookUpdate)
+async def update_book(book_id: int, book: BookUpdate, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    statement = select(models.Book).where(models.Book.id == book_id)
+    try:
+        result = db.execute(statement)
+        existing_book = result.scalar_one()
+    except NoResultFound:
+        raise HTTPException(status_code=404, detail="Book not found")
+    existing_book.title = book.title
+    existing_book.description = book.description
+    existing_book.publish_date = book.publish_date
+    db.add(existing_book)
+    db.commit()
+    db.refresh(existing_book)
+    return existing_book
+
+@router.delete("/delete/{book_id}", response_model=dict)
+async def delete_book(book_id: int, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    statement = select(models.Book).where(models.Book.id == book_id)
+    try:
+        result = db.execute(statement)
+        existing_book = result.scalar_one()
+    except NoResultFound:
+        raise HTTPException(status_code=404, detail="Book not found")
+    db.delete(existing_book)
+    db.commit()
+
+    return {"detail": "Book deleted successfully"}
 
 @router.get("/all_books", response_model=list[BooksRetrieve])
 async def get_all_books(skip: int = 0, limit: int = 10, db: Session = Depends(database.get_db)):

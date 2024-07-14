@@ -43,3 +43,6 @@ class BookCreate(BaseModel):
     title: str
     description: str
     publish_date: datetime
+
+class BookUpdate(BookCreate):
+    pass    
